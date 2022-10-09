@@ -8,4 +8,4 @@ lint-fix:
 	composer exec --verbose phpcbf -- --standard=PSR12 public
 
 start:
-	php -S localhost:3000 -t public public/index.php
+	php -S 0.0.0.0:${PORT:-8000} -t public
