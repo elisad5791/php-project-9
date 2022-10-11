@@ -26,14 +26,22 @@
       </div>
     </div>
   </nav>
-  <main class="border rounded-3 bg-light container">
-    <h1 class="display-3">Анализатор страниц</h1>
-    <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
-    <form>
-      <input type="text" class="form-control form-control-lg" placeholder="https://www.example.com" name="url">
-      <button type="submit" class="btn btn-lg btn-primary text-uppercase">Проверить</button>
-    </form>
-  </main>
+  <div class="container-lg">
+    <div class="row justify-content-center">
+      <main class="border rounded-3 bg-light col-11 col-xl-8 mt-3 p-5">
+        <h1 class="display-3">Анализатор страниц</h1>
+        <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
+        <form class="row g-5">
+          <div class="col-12 col-lg-8">
+            <input type="text" class="form-control form-control-lg" placeholder="https://www.example.com" name="url">
+          </div>
+          <div class="col-12 col-lg-4">
+            <button type="submit" class="btn btn-lg btn-primary text-uppercase px-5 w-100">Проверить</button>
+            </div>
+        </form>
+      </main>
+    </div>
+  </div>
   <footer class="border-top py-3 text-center position-fixed bottom-0 start-0 end-0">
     <a href="#">Hexlet</a>
   </footer>
