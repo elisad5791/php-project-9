@@ -24,7 +24,7 @@ $app->post('/', function ($request, $response) {
     $v->rule('lengthMax', 'name', 255);
     $v->rule('url', 'name');
 
-    if($v->validate()) {
+    if ($v->validate()) {
         $name = $url['name'];
         $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
         $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
@@ -47,7 +47,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $result = $query->execute([$id]);
     $data = $query->fetch();
     $db = null;
-    
+
     $params = ['url' => $data];
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 });
@@ -60,7 +60,7 @@ $app->get('/urls', function ($request, $response) {
     $result = $query->execute();
     $data = $query->fetchAll();
     $db = null;
-    
+
     $params = ['urls' => $data];
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
 });
