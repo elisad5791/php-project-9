@@ -17,4 +17,15 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
 
+$app->post('/', function ($request, $response) {
+    $url = $request->getParsedBodyParam('url');
+    $name = $url['name'];
+    $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
+    $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
+    $sql = "INSERT INTO urls(name, created_at) VALUES (?, NOW())";
+    $query = $db->prepare($sql, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
+    $query->execute([$name]);
+    return $response->withRedirect('/');
+});
+
 $app->run();
