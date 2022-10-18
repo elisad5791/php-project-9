@@ -1,3 +1,9 @@
+<?php
+ $class = $valid ? '': ' is-invalid';
+ $success = $messages['success'] ?? [];
+ $error = $messages['error'] ?? [];
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,19 +32,36 @@
       </div>
     </div>
   </nav>
+
+  <?php foreach ($success as $message): ?>
+    <div class="alert alert-success" role="alert">
+      <?=$message?>
+    </div>
+  <?php endforeach; ?>
+
+  <?php foreach ($error as $message): ?>
+    <div class="alert alert-danger" role="alert">
+      <?=$message?>
+    </div>
+  <?php endforeach; ?>
+
   <div class="container-lg">
     <div class="row justify-content-center">
       <main class="border rounded-3 bg-light col-11 col-xl-8 mt-3 p-5">
         <h1 class="display-3">Анализатор страниц</h1>
         <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
         <form class="row g-5" action='/' method='post'>
-          <div class="col-12 col-lg-8">
+          <div class="col-12 col-lg-8 has-validation">
             <input 
               type="text" 
-              class="form-control form-control-lg" 
+              class="form-control form-control-lg<?=$class?>" 
               placeholder="https://www.example.com" 
               name="url[name]"
+              value="<?=$name?>"
             >
+            <div class="invalid-feedback">
+              Некорректный URL
+            </div>
           </div>
           <div class="col-12 col-lg-4">
             <button 

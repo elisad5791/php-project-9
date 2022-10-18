@@ -4,37 +4,62 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use Carbon\Carbon;
+
+session_start();
 
 $container = new Container();
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
 });
+$container->set('flash', function () {
+    return new \Slim\Flash\Messages();
+});
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
+$router = $app->getRouteCollector()->getRouteParser();
 
 $app->get('/', function ($request, $response) {
-    $params = [];
+    $messages = $this->get('flash')->getMessages();
+    $params = ['valid' => true, 'name' => '', 'messages' => $messages];
     return $this->get('renderer')->render($response, 'index.phtml', $params);
-});
+})->setName('root');
 
-$app->post('/', function ($request, $response) {
+
+$app->post('/', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
+    $name = $url['name'];
+
     $v = new Valitron\Validator($url);
     $v->rule('required', 'name');
     $v->rule('lengthMax', 'name', 255);
     $v->rule('url', 'name');
-
-    if ($v->validate()) {
-        $name = $url['name'];
-        $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
-        $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
-        $sql = "INSERT INTO urls(name, created_at) VALUES (?, NOW())";
-        $query = $db->prepare($sql);
-        $query->execute([$name]);
-        $db = null;
+    if (!$v->validate()) {
+        $params = ['valid' => false, 'name' => $name];
+        return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
-    return $response->withRedirect('/');
+    $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
+    $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
+    $route = $router->urlFor('root');
+
+    $sql = "SELECT * FROM urls WHERE name=?";
+    $query = $db->prepare($sql);
+    $query->execute([$name]);
+    $count = $query->rowCount();
+    if ($count !== 0) {
+        $db = null;
+        $this->get('flash')->addMessage('error', 'Сайт уже добавлен');
+        return $response->withRedirect($route); 
+    }
+
+    $date = Carbon::now();
+    $sql = "INSERT INTO urls(name, created_at) VALUES (?, ?)";
+    $query = $db->prepare($sql);
+    $query->execute([$name, $date]);
+    $db = null;
+    $this->get('flash')->addMessage('success', 'Сайт добавлен');
+    return $response->withRedirect($route); 
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
