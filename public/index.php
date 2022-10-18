@@ -50,7 +50,7 @@ $app->post('/', function ($request, $response) use ($router) {
     if ($count !== 0) {
         $db = null;
         $this->get('flash')->addMessage('error', 'Сайт уже добавлен');
-        return $response->withRedirect($route); 
+        return $response->withRedirect($route);
     }
 
     $date = Carbon::now();
@@ -59,7 +59,7 @@ $app->post('/', function ($request, $response) use ($router) {
     $query->execute([$name, $date]);
     $db = null;
     $this->get('flash')->addMessage('success', 'Сайт добавлен');
-    return $response->withRedirect($route); 
+    return $response->withRedirect($route);
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
