@@ -8,6 +8,21 @@ use Carbon\Carbon;
 
 session_start();
 
+if (isset($_ENV['DATABASE_URL'])) {
+    $databaseUrl = parse_url($_ENV['DATABASE_URL']);
+    $username = $databaseUrl['user'];
+    $password = $databaseUrl['pass'];
+    $host = $databaseUrl['host'];
+    $port = $databaseUrl['port'];
+    $dbname = ltrim($databaseUrl['path'], '/');
+} else {
+    $username = 'elisad5791';
+    $password = 'HigginS5791';
+    $host = 'localhost';
+    $port = '5432';
+    $dbname = 'elisad5791';
+}
+
 $container = new Container();
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
@@ -26,7 +41,7 @@ $app->get('/', function ($request, $response) {
 })->setName('root');
 
 
-$app->post('/', function ($request, $response) use ($router) {
+$app->post('/', function ($request, $response) use ($router, $host, $port, $dbname, $username, $password) {
     $url = $request->getParsedBodyParam('url');
     $name = $url['name'];
 
@@ -39,8 +54,8 @@ $app->post('/', function ($request, $response) use ($router) {
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
-    $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
-    $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $db = new PDO($dsn, $username, $password);
     $route = $router->urlFor('root');
 
     $sql = "SELECT * FROM urls WHERE name=?";
