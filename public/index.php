@@ -77,28 +77,40 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     return $response->withRedirect($route);
 });
 
-$app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
-    $id = $args['id'];
-
-    $sql = "SELECT * FROM urls WHERE id=?";
-    $query = $db->prepare($sql);
-    $result = $query->execute([$id]);
-    $data = $query->fetch();
-    $db = null;
-
-    $params = ['url' => $data];
-    return $this->get('renderer')->render($response, 'show.phtml', $params);
-});
-
 $app->get('/urls', function ($request, $response) use ($db) {
     $sql = "SELECT * FROM urls";
     $query = $db->prepare($sql);
     $result = $query->execute();
     $data = $query->fetchAll();
-    $db = null;
 
     $params = ['urls' => $data];
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
+});
+
+$app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
+    $id = $args['id'];
+    $messages = $this->get('flash')->getMessages();
+
+    $sql = "SELECT * FROM urls WHERE id=?";
+    $query = $db->prepare($sql);
+    $result = $query->execute([$id]);
+    $data = $query->fetch();
+
+    $params = ['url' => $data, 'messages' => $messages];
+    return $this->get('renderer')->render($response, 'show.phtml', $params);
+})->setName('url');
+
+$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router, $db) {
+    $url_id = $args['url_id'];
+
+    $date = Carbon::now();
+    $sql = "INSERT INTO url_checks(url_id, created_at) VALUES (?, ?)";
+    $query = $db->prepare($sql);
+    $query->execute([$url_id, $date]);
+
+    $route = $router->urlFor('url', ['id' => $url_id]);
+    $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+    return $response->withRedirect($route);
 });
 
 $app->run();

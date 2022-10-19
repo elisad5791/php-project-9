@@ -1,3 +1,8 @@
+<?php
+ $success = $messages['success'] ?? [];
+ $error = $messages['error'] ?? [];
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -27,6 +32,18 @@
     </div>
   </nav>
 
+  <?php foreach ($success as $message): ?>
+    <div class="alert alert-success" role="alert">
+      <?=$message?>
+    </div>
+  <?php endforeach; ?>
+
+  <?php foreach ($error as $message): ?>
+    <div class="alert alert-danger" role="alert">
+      <?=$message?>
+    </div>
+  <?php endforeach; ?>
+
   <div class="container-lg">
     <h1 class="mt-3">Сайт: <?=$url['name']?></h1>  
     <table class="table table-bordered">
@@ -45,12 +62,12 @@
     </table>
 
     <h2 class="mt-5">Проверки</h2>
-    <form action="urls/<?=$url['id']?>" method="post" class="mt-3">
+    <form action="/urls/<?=$url['id']?>/checks" method="post" class="mt-3">
         <input type="hidden" name="url[id]" value="<?=$url['id']?>">
         <button type="submit" class="btn btn-primary">Запустить проверку</button>
     </form>
 
-    <table class="table table-bordered mt-3">
+    <table class="table table-bordered mt-3" data-test="url">
         <tr>
             <th>ID</th>
             <th>Код ответа</th>
