@@ -41,7 +41,7 @@ $app->get('/', function ($request, $response) {
 })->setName('root');
 
 
-$app->post('/', function ($request, $response) use ($router, $host, $port, $dbname, $username, $password) {
+$app->post('/', function ($request, $response) use ($router, $host, $port, $dbname, $username,) {
     $url = $request->getParsedBodyParam('url');
     $name = $url['name'];
 
@@ -80,8 +80,8 @@ $app->post('/', function ($request, $response) use ($router, $host, $port, $dbna
 $app->get('/urls/{id}', function ($request, $response, array $args) {
     $id = $args['id'];
 
-    $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
-    $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $db = new PDO($dsn, $username, $password);
     $sql = "SELECT * FROM urls WHERE id=?";
     $query = $db->prepare($sql);
     $result = $query->execute([$id]);
@@ -93,8 +93,8 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 });
 
 $app->get('/urls', function ($request, $response) {
-    $dsn = "pgsql:host=localhost;port=5432;dbname=elisad5791";
-    $db = new PDO($dsn, 'elisad5791', 'HigginS5791');
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $db = new PDO($dsn, $username, $password);
     $sql = "SELECT * FROM urls";
     $query = $db->prepare($sql);
     $result = $query->execute();
