@@ -22,6 +22,8 @@ if (isset($_ENV['DATABASE_URL'])) {
     $port = '5432';
     $dbname = 'elisad5791';
 }
+$dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+$db = new PDO($dsn, $username, $password);
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -41,7 +43,7 @@ $app->get('/', function ($request, $response) {
 })->setName('root');
 
 
-$app->post('/', function ($request, $response) use ($router, $host, $port, $dbname, $username,) {
+$app->post('/', function ($request, $response) use ($router, $db) {
     $url = $request->getParsedBodyParam('url');
     $name = $url['name'];
 
@@ -53,9 +55,7 @@ $app->post('/', function ($request, $response) use ($router, $host, $port, $dbna
         $params = ['valid' => false, 'name' => $name];
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
-
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-    $db = new PDO($dsn, $username, $password);
+    
     $route = $router->urlFor('root');
 
     $sql = "SELECT * FROM urls WHERE name=?";
@@ -72,16 +72,14 @@ $app->post('/', function ($request, $response) use ($router, $host, $port, $dbna
     $sql = "INSERT INTO urls(name, created_at) VALUES (?, ?)";
     $query = $db->prepare($sql);
     $query->execute([$name, $date]);
-    $db = null;
+    
     $this->get('flash')->addMessage('success', 'Сайт добавлен');
     return $response->withRedirect($route);
 });
 
-$app->get('/urls/{id}', function ($request, $response, array $args) {
+$app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
     $id = $args['id'];
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-    $db = new PDO($dsn, $username, $password);
     $sql = "SELECT * FROM urls WHERE id=?";
     $query = $db->prepare($sql);
     $result = $query->execute([$id]);
@@ -92,9 +90,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 });
 
-$app->get('/urls', function ($request, $response) {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-    $db = new PDO($dsn, $username, $password);
+$app->get('/urls', function ($request, $response) use ($db) {
     $sql = "SELECT * FROM urls";
     $query = $db->prepare($sql);
     $result = $query->execute();
@@ -106,3 +102,4 @@ $app->get('/urls', function ($request, $response) {
 });
 
 $app->run();
+$db = null;
