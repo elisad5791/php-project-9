@@ -55,7 +55,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
         $params = ['valid' => false, 'name' => $name];
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
-    
+
     $route = $router->urlFor('root');
 
     $sql = "SELECT * FROM urls WHERE name=?";
@@ -72,7 +72,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $sql = "INSERT INTO urls(name, created_at) VALUES (?, ?)";
     $query = $db->prepare($sql);
     $query->execute([$name, $date]);
-    
+
     $this->get('flash')->addMessage('success', 'Сайт добавлен');
     return $response->withRedirect($route);
 });
