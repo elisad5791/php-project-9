@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 
 session_start();
 
@@ -87,11 +88,13 @@ $app->get('/urls', function ($request, $response) use ($db) {
     foreach ($data as $row) {
         $id = $row['id'];
         $name = $row['name'];
-        $sql = "SELECT created_at FROM url_checks WHERE url_id=? ORDER BY created_at DESC LIMIT 1";
+        $sql = "SELECT status_code, created_at FROM url_checks WHERE url_id=? ORDER BY created_at DESC LIMIT 1";
         $query = $db->prepare($sql);
         $result = $query->execute([$id]);
-        $created_at = $query->fetchColumn();
-        $urls[] = compact('id', 'name', 'created_at');
+        $checkData = $query->fetch();
+        $status_code = $checkData['status_code'];
+        $created_at = $checkData['created_at'];
+        $urls[] = compact('id', 'name', 'created_at', 'status_code');
     }
 
     $params = compact('urls');
@@ -107,7 +110,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
     $result = $query->execute([$id]);
     $urlData = $query->fetch();
 
-    $sql = "SELECT id, created_at FROM url_checks WHERE url_id=?";
+    $sql = "SELECT id, status_code, created_at FROM url_checks WHERE url_id=?";
     $query = $db->prepare($sql);
     $result = $query->execute([$id]);
     $checksData = $query->fetchAll();
@@ -118,11 +121,20 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router, $db) {
     $url_id = $args['url_id'];
-
     $date = Carbon::now();
-    $sql = "INSERT INTO url_checks(url_id, created_at) VALUES (?, ?)";
+
+    $sql = "SELECT name FROM urls WHERE id=?";
     $query = $db->prepare($sql);
-    $query->execute([$url_id, $date]);
+    $result = $query->execute([$url_id]);
+    $url = $query->fetchColumn();
+
+    $client = new Client();
+    $res = $client->request('GET', $url);
+    $code = $res->getStatusCode();
+
+    $sql = "INSERT INTO url_checks(url_id, status_code, created_at) VALUES (?, ?, ?)";
+    $query = $db->prepare($sql);
+    $query->execute([$url_id, $code, $date]);
 
     $route = $router->urlFor('url', ['id' => $url_id]);
     $this->get('flash')->addMessage('success', 'Страница успешно проверена');
