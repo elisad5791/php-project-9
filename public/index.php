@@ -78,12 +78,23 @@ $app->post('/', function ($request, $response) use ($router, $db) {
 });
 
 $app->get('/urls', function ($request, $response) use ($db) {
-    $sql = "SELECT * FROM urls";
+    $sql = "SELECT id, name FROM urls";
     $query = $db->prepare($sql);
     $result = $query->execute();
     $data = $query->fetchAll();
 
-    $params = ['urls' => $data];
+    $urls = [];
+    foreach ($data as $row) {
+        $id = $row['id'];
+        $name = $row['name'];
+        $sql = "SELECT created_at FROM url_checks WHERE url_id=? ORDER BY created_at DESC LIMIT 1";
+        $query = $db->prepare($sql);
+        $result = $query->execute([$id]);
+        $created_at = $query->fetchColumn();
+        $urls[] = compact('id', 'name', 'created_at');
+    }
+
+    $params = compact('urls');
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
 });
 
@@ -94,9 +105,14 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
     $sql = "SELECT * FROM urls WHERE id=?";
     $query = $db->prepare($sql);
     $result = $query->execute([$id]);
-    $data = $query->fetch();
+    $urlData = $query->fetch();
 
-    $params = ['url' => $data, 'messages' => $messages];
+    $sql = "SELECT id, created_at FROM url_checks WHERE url_id=?";
+    $query = $db->prepare($sql);
+    $result = $query->execute([$id]);
+    $checksData = $query->fetchAll();
+
+    $params = ['url' => $urlData, 'checks' => $checksData, 'messages' => $messages];
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 })->setName('url');
 
