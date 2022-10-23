@@ -6,6 +6,7 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use DiDom\Document;
 
 session_start();
 
@@ -110,7 +111,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
     $result = $query->execute([$id]);
     $urlData = $query->fetch();
 
-    $sql = "SELECT id, status_code, created_at FROM url_checks WHERE url_id=?";
+    $sql = "SELECT id, status_code, h1, title, description, created_at FROM url_checks WHERE url_id=?";
     $query = $db->prepare($sql);
     $result = $query->execute([$id]);
     $checksData = $query->fetchAll();
@@ -132,9 +133,17 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $res = $client->request('GET', $url);
     $code = $res->getStatusCode();
 
-    $sql = "INSERT INTO url_checks(url_id, status_code, created_at) VALUES (?, ?, ?)";
+    $document = new Document($url, true);
+    $elem = $document->first('h1');
+    $h1 = $elem ? $elem->text() : '';
+    $elem = $document->first('title');
+    $title = $elem ? $elem->text() : '';
+
+    $description = $document->has('meta[name=description]') ? $document->first('meta[name=description]')->getAttribute('content') : '';
+
+    $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $query = $db->prepare($sql);
-    $query->execute([$url_id, $code, $date]);
+    $query->execute([$url_id, $code, $h1, $title, $description, $date]);
 
     $route = $router->urlFor('url', ['id' => $url_id]);
     $this->get('flash')->addMessage('success', 'Страница успешно проверена');
