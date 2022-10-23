@@ -58,23 +58,27 @@ $app->post('/', function ($request, $response) use ($router, $db) {
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
-    $route = $router->urlFor('root');
-
-    $sql = "SELECT * FROM urls WHERE name=?";
-    $query = $db->prepare($sql);
+    
+    $sqlSelect = "SELECT id FROM urls WHERE name=?";
+    $query = $db->prepare($sqlSelect);
     $query->execute([$name]);
     $count = $query->rowCount();
     if ($count !== 0) {
-        $db = null;
+        $id = $query->fetchColumn(); 
+        $route = $router->urlFor('url', ['id' => $id]);
         $this->get('flash')->addMessage('error', 'Страница уже добавлена');
         return $response->withRedirect($route);
     }
 
     $date = Carbon::now();
-    $sql = "INSERT INTO urls(name, created_at) VALUES (?, ?)";
-    $query = $db->prepare($sql);
+    $sqlInsert = "INSERT INTO urls(name, created_at) VALUES (?, ?)";
+    $query = $db->prepare($sqlInsert);
     $query->execute([$name, $date]);
 
+    $query = $db->prepare($sqlSelect);
+    $query->execute([$name]);
+    $id = $query->fetchColumn(); 
+    $route = $router->urlFor('url', ['id' => $id]);
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     return $response->withRedirect($route);
 });
