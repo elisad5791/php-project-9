@@ -55,6 +55,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $v->rule('url', 'name');
     if (!$v->validate()) {
         $params = ['valid' => false, 'name' => $name];
+        $this->get('flash')->addMessage('error', 'Некорректный URL');
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
@@ -102,7 +103,8 @@ $app->get('/urls', function ($request, $response) use ($db) {
         $urls[] = compact('id', 'name', 'created_at', 'status_code');
     }
 
-    $params = compact('urls');
+    $messages = $this->get('flash')->getMessages();
+    $params = compact('urls', 'messages');
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
 });
 

@@ -1,3 +1,8 @@
+<?php
+ $success = $messages['success'] ?? [];
+ $error = $messages['error'] ?? [];
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -27,6 +32,18 @@
         </div>
       </div>
     </nav>
+
+    <?php foreach ($success as $message): ?>
+      <div class="alert alert-success" role="alert">
+        <?=$message?>
+      </div>
+    <?php endforeach; ?>
+
+    <?php foreach ($error as $message): ?>
+      <div class="alert alert-danger" role="alert">
+        <?=$message?>
+      </div>
+    <?php endforeach; ?>
 
     <div class="container-lg">
       <h1 class="mt-3">Сайты</h1>  
