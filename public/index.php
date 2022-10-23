@@ -66,7 +66,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $count = $query->rowCount();
     if ($count !== 0) {
         $db = null;
-        $this->get('flash')->addMessage('error', 'Сайт уже добавлен');
+        $this->get('flash')->addMessage('error', 'Страница уже добавлена');
         return $response->withRedirect($route);
     }
 
@@ -75,7 +75,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $query = $db->prepare($sql);
     $query->execute([$name, $date]);
 
-    $this->get('flash')->addMessage('success', 'Сайт добавлен');
+    $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     return $response->withRedirect($route);
 });
 
