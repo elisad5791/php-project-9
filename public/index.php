@@ -66,7 +66,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     if ($count !== 0) {
         $id = $query->fetchColumn();
         $route = $router->urlFor('url', ['id' => $id]);
-        $this->get('flash')->addMessage('error', 'Страница уже добавлена');
+        $this->get('flash')->addMessage('error', 'Страница уже существует');
         return $response->withRedirect($route);
     }
 
