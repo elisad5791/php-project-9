@@ -54,9 +54,12 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $v->rule('lengthMax', 'name', 255);
     $v->rule('url', 'name');
     if (!$v->validate()) {
-        $params = ['valid' => false, 'name' => $name];
+        /*$params = ['valid' => false, 'name' => $name];
         $this->get('flash')->addMessage('error', 'Некорректный URL');
-        return $this->get('renderer')->render($response, 'index.phtml', $params);
+        return $this->get('renderer')->render($response, 'index.phtml', $params);*/
+        $route = $router->urlFor('urls');
+        $this->get('flash')->addMessage('error', 'Некорректный URL');
+        return $response->withRedirect($route);
     }
 
 
@@ -106,7 +109,7 @@ $app->get('/urls', function ($request, $response) use ($db) {
     $messages = $this->get('flash')->getMessages();
     $params = compact('urls', 'messages');
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
-});
+})->setName('urls');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) use ($db) {
     $id = $args['id'];
