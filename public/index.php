@@ -139,7 +139,9 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $elem = $document->first('title');
     $title = $elem ? $elem->text() : '';
 
-    $description = $document->has('meta[name=description]') ? $document->first('meta[name=description]')->getAttribute('content') : '';
+    $description = $document->has('meta[name=description]')
+        ? $document->first('meta[name=description]')->getAttribute('content')
+        : '';
 
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $query = $db->prepare($sql);
