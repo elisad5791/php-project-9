@@ -140,7 +140,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
 
     $document = new Document((string) $url, true);
     if ($document->has('h1')) {
-        $elem = $document->first('h1');
+        $elem = $document->find('h1')[0];
         $h1 = $elem->text();
     } else {
         $h1 = '';
