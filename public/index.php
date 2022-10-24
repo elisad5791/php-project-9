@@ -138,7 +138,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $res = $client->request('GET', (string) $url);
     $code = $res->getStatusCode();
 
-    $document = new Document($url, true);
+    $document = new Document((string) $url, true);
     $elem = $document->first('h1');
     $h1 = $elem ? $elem->text() : '';
     $elem = $document->first('title');
