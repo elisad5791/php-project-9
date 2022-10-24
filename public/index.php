@@ -55,7 +55,8 @@ $app->post('/', function ($request, $response) use ($router, $db) {
     $v->rule('url', 'name');
     if (!$v->validate()) {
         $params = ['valid' => false, 'name' => $name];
-        $this->get('flash')->addMessage('error', 'Некорректный URL');
+        /*$this->get('flash')->addMessage('error', 'Некорректный URL');*/
+        $response = $response->withStatus(422);
         return $this->get('renderer')->render($response, 'index.phtml', $params);
         /*$route = $router->urlFor('urls');
         $this->get('flash')->addMessage('error', 'Некорректный URL');
