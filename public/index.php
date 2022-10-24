@@ -139,8 +139,12 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $code = $res->getStatusCode();
 
     $document = new Document((string) $url, true);
-    $elem = $document->first('h1');
-    $h1 = $elem ? $elem->text() : '';
+    if ($document->has('h1')) {
+        $elem = $document->first('h1');
+        $h1 = $elem->text();
+    } else {
+        $h1 = '';
+    }
     $elem = $document->first('title');
     $title = $elem ? $elem->text() : '';
 
