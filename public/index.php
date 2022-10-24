@@ -135,7 +135,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $url = $query->fetchColumn();
 
     $client = new Client();
-    $res = $client->request('GET', $url);
+    $res = $client->request('GET', (string) $url);
     $code = $res->getStatusCode();
 
     $document = new Document($url, true);
