@@ -59,14 +59,13 @@ $app->post('/urls', function ($request, $response) use ($router, $db) {
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
-
     $sqlSelect = "SELECT id FROM urls WHERE name=?";
     $query = $db->prepare($sqlSelect);
     $query->execute([$name]);
     $count = $query->rowCount();
     if ($count !== 0) {
         $id = $query->fetchColumn();
-        $route = $router->urlFor('url', ['id' => $id]);
+        $route = $router->urlFor('url', ['id' => "$id"]);
         $this->get('flash')->addMessage('error', 'Страница уже существует');
         return $response->withRedirect($route);
     }
@@ -79,7 +78,7 @@ $app->post('/urls', function ($request, $response) use ($router, $db) {
     $query = $db->prepare($sqlSelect);
     $query->execute([$name]);
     $id = $query->fetchColumn();
-    $route = $router->urlFor('url', ['id' => $id]);
+    $route = $router->urlFor('url', ['id' => "$id"]);
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     return $response->withRedirect($route);
 });
@@ -153,7 +152,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $query = $db->prepare($sql);
     $query->execute([$url_id, $code, $h1, $title, $description, $date]);
 
-    $route = $router->urlFor('url', ['id' => $url_id]);
+    $route = $router->urlFor('url', ['id' => "$url_id"]);
     $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     return $response->withRedirect($route);
 });
