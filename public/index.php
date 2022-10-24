@@ -139,17 +139,13 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $code = $res->getStatusCode();
 
     $document = new Document((string) $url, true);
-    if ($document->has('h1')) {
-        $elem = $document->find('h1')[0];
-        $h1 = $elem->text();
-    } else {
-        $h1 = '';
-    }
+    $elem = $document->first('h1');
+    $h1 = $elem ? $elem->text() : ''; /** @phpstan-ignore-line */
     $elem = $document->first('title');
-    $title = $elem ? $elem->text() : '';
+    $title = $elem ? $elem->text() : ''; /** @phpstan-ignore-line */
 
     $description = $document->has('meta[name=description]')
-        ? $document->first('meta[name=description]')->getAttribute('content')
+        ? $document->first('meta[name=description]')->getAttribute('content') /** @phpstan-ignore-line */
         : '';
 
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at) VALUES (?, ?, ?, ?, ?, ?)";
