@@ -59,7 +59,7 @@ $app->post('/', function ($request, $response) use ($router, $db) {
         return $this->get('renderer')->render($response, 'index.phtml', $params);*/
         $route = $router->urlFor('urls');
         $this->get('flash')->addMessage('error', 'Некорректный URL');
-        return $response->withRedirect($route);
+        return $response->withRedirect($route)->withStatus(422);
     }
 
 
